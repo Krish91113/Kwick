@@ -1,8 +1,12 @@
 import { ShareItem, TtlOption } from '../types';
 import { saveFullShare, getLocalShare } from '../utils/storage';
+// Support both VITE_API_BASE_URL (standard) and VITE_API_URL (legacy), removing any trailing slash
+const rawApiBase =
+  (import.meta.env.VITE_API_BASE_URL as string | undefined) ||
+  (import.meta.env.VITE_API_URL as string | undefined) ||
+  '';
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
-
+export const API_BASE = rawApiBase.trim().replace(/\/+$/, '');
 export interface ApiResponse<T> {
   success: boolean;
   data: T;

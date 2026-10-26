@@ -21,12 +21,33 @@ export function createApp(): Application {
     })
   );
 
+  const explicitOrigins = env.FRONTEND_ORIGIN.split(',').map((s) => s.trim()).filter(Boolean);
+  const defaultAllowedOrigins = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+  ];
+
   app.use(
     cors({
-      origin: env.FRONTEND_ORIGIN === '*' ? true : [env.FRONTEND_ORIGIN, 'http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5173', 'http://127.0.0.1:5173'],
+      origin: (requestOrigin, callback) => {
+        if (!requestOrigin) return callback(null, true);
+        if (
+          env.FRONTEND_ORIGIN === '*' ||
+          explicitOrigins.includes(requestOrigin) ||
+          defaultAllowedOrigins.includes(requestOrigin) ||
+          requestOrigin.endsWith('.vercel.app') ||
+          requestOrigin.endsWith('.pages.dev') ||
+          requestOrigin.endsWith('.workers.dev')
+        ) {
+          return callback(null, true);
+        }
+        return callback(null, false);
+      },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Delete-Token', 'X-Request-Id']
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Delete-Token', 'X-Request-Id'],
     })
   );
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
 import { ShareItem } from '../types';
-import { deleteShare, getFileDownloadUrl } from '../services/api';
+import { deleteShare, getFileDownloadUrl, API_BASE } from '../services/api';
 
 interface RecipientViewProps {
   share: ShareItem;
@@ -388,7 +388,8 @@ export const RecipientView: React.FC<RecipientViewProps> = ({ share, onForkDrop,
               <span>Terminal Ingestion</span>
               <button
                 onClick={() => {
-                  const cmd = `curl -sL http://localhost:5000/api/v1/s/${share.shortCode}`;
+                  const curlHost = API_BASE || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5000');
+                  const cmd = `curl -sL ${curlHost}/api/v1/s/${share.shortCode}`;
                   navigator.clipboard.writeText(cmd);
                   onNotify('Copied cURL command to clipboard!', 'info');
                 }}
@@ -399,11 +400,12 @@ export const RecipientView: React.FC<RecipientViewProps> = ({ share, onForkDrop,
             </div>
             <div className="flex items-center justify-between bg-[#10131A] rounded-xl p-2.5 font-mono text-xs text-[#FDFFF1] border border-[#2C303B]">
               <code className="text-[#B7F36B] truncate">
-                $ curl -sL http://localhost:5000/api/v1/s/{share.shortCode}
+                $ curl -sL {API_BASE || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5000')}/api/v1/s/{share.shortCode}
               </code>
               <button
                 onClick={() => {
-                  const cmd = `curl -sL http://localhost:5000/api/v1/s/${share.shortCode}`;
+                  const curlHost = API_BASE || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5000');
+                  const cmd = `curl -sL ${curlHost}/api/v1/s/${share.shortCode}`;
                   navigator.clipboard.writeText(cmd);
                   onNotify('Copied cURL command to clipboard!', 'info');
                 }}
